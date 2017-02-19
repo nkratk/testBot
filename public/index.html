@@ -1,0 +1,111 @@
+<html>
+<head>
+	<title>API Trials</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	
+	<style type="text/css">
+		body { width: 500px; margin: 0 auto; text-align: center; margin-top: 20px; }
+		div {  position: absolute; }
+		input { width: 400px; }
+		button { width: 50px; }
+		textarea { width: 100%; }
+	</style>
+</head>
+<body>
+	<div>
+		<input id="input" type="text"> <button id="rec">Speak</button>
+		<br>Response<br> <textarea id="response" cols="40" rows="20"></textarea>
+	</div>
+	
+	<script type="text/javascript">		
+		const config = {
+			accessToken : "8ba5ca51dc9746b88fefddf34db6c0bc",
+			recognition : null,
+			baseUrl : "https://api.api.ai/v1/",
+			domElements : {
+				input : document.getElementById('input'),
+				record : document.getElementById('rec'),
+				response : document.getElementById('response'),
+			},
+			startRecognition: function () {
+				this.recognition = new webkitSpeechRecognition();
+				this.recognition.onstart = (event) => {
+					this.updateRec();
+				};
+				this.recognition.onresult = (event) => {
+					let text = "";
+					for (let i = event.resultIndex; i < event.results.length; ++i) {
+						text += event.results[i][0].transcript;
+					}
+					this.setInput(text);
+				};
+				this.recognition.onend = () => {
+					this.stopRecognition();
+				};
+				this.recognition.lang = "en-US";
+
+				this.recognition.start();
+			},
+			stopRecognition: function () {
+				if (this.recognition) {
+					this.recognition.stop();
+					this.recognition = null;
+				}
+				this.updateRec();
+			},
+			switchRecognition: function () {
+				this.recognition ? this.stopRecognition() : this.startRecognition();
+			},
+			updateRec: function () {
+				this.domElements.record.innerText = this.recognition ? "Stop" : "Speak";
+			},
+			setInput: function (text) {
+				this.domElements.input.value = text;
+				this.send();
+			},
+			setResponse: function (val) {
+				this.domElements.response.innerText = val;
+			},
+			send: function () {
+				const url = `${this.baseUrl}query?v=20150910`,
+					token = `Bearer${this.accessToken}`,
+					text = this.domElements.input.value;
+					
+				fetch(url, {  
+					method: 'POST',  
+					headers: {  
+						'Content-Type': 'application/json; charset=utf-8',
+						"Authorization": token 
+					},  
+					body: JSON.stringify({
+						query: text,
+						lang: "en",
+						sessionId: "<any random string>"
+					})
+				})
+				.then( (response) => response.json() )
+				.then((data) => {
+					config.setResponse(JSON.stringify(data, undefined, 2));
+				})
+				.catch((error) => {  
+				  config.setResponse("Internal Server Error"); 
+				});
+				
+				config.setResponse("Loading...");
+			}
+		};
+		
+		config.domElements.input.addEventListener('keypress', (evt) => {
+		  if (evt.which == 13) {
+			  evt.preventDefault();
+			  config.send();
+		  }
+		});
+
+		config.domElements.record.addEventListener('click', (evt) => {	
+			config.switchRecognition();
+		});
+
+	</script>
+</body>
+</html>

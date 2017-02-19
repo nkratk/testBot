@@ -1,0 +1,25 @@
+{
+  "name": "testbot",
+  "version": "1.0.0",
+  "description": "personal assistant powered by api.ai",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nkratk/testBot.git"
+  },
+  "keywords": [
+    "test bot"
+  ],
+  "author": "Kishore",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nkratk/testBot/issues"
+  },
+  "homepage": "https://github.com/nkratk/testBot#readme",
+  "dependencies": {
+    "express": "^4.14.1"
+  }
+}
